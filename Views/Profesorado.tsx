@@ -1,0 +1,96 @@
+import React, { useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ConnectApi } from "../class/Connect.Api/ConnectApi";
+import Header from "../components/Header";
+import { styles } from "../styles/styles";
+import { View, Text } from "react-native";
+import InputText from "../components/InputText";
+import Boton from "../components/Boton";
+import { LoginResponse } from "../class/Interface/LoginResponse";
+import { Profesor } from "../class/Interface/Profesor";
+
+export default function Profesorado({ navigation }: { navigation: any }) {
+  const [usuario, setUsuario] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const [error, setError] = useState("");
+  const api = new ConnectApi();
+  const atras = () => {
+    navigation.goBack();
+  };
+  const handleUsuarioPress = (inputUsuario: string) => {
+    setUsuario(inputUsuario);
+  };
+  const handleContraseñaPress = (inputContraseña: string) => {
+    setContraseña(inputContraseña);
+  };
+  const onBorrarPress = () => {
+    setUsuario("");
+    setContraseña("");
+    setError("");
+  };
+  const onEnviarPress = async () => {
+    const response: LoginResponse = await api.loginUser(usuario, contraseña);
+    console.log(response);
+    if (!response.ok) {
+      setError(response.message);
+    } else {
+      const profesor: Profesor = {
+        foto: response.foto,
+        username: response.username,
+      };
+      if (response.tipo === "admin")
+        navigation.navigate("AdminScreen", { profesor: profesor });
+      if (response.tipo === "profesor") navigation.navigate("ProfesorScreen");
+    }
+  };
+  return (
+    <SafeAreaProvider style={styles.container}>
+      <Header
+        uri="volver"
+        nameBottom="Atrás"
+        navigation={() => atras()}
+        nameHeader={api.getComponent("Entrar.png")}
+        uriPictograma="entrar"
+      />
+      <View
+        style={[styles.content, styles.shadow, { justifyContent: "center" }]}
+      >
+        <InputText
+          nameInput="Usuario:"
+          input={handleUsuarioPress}
+          value={usuario}
+        />
+        <InputText
+          nameInput="Contraseña:"
+          input={handleContraseñaPress}
+          secure={true}
+          value={contraseña}
+        />
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          {error && (
+            <Text style={styles.error}>Usuario o contraseña incorrecto</Text>
+          )}
+          <Boton
+            uri="olvideContraseña"
+            nameBottom="Olvide mi contraseña"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          margin: 10,
+        }}
+      >
+        <Boton
+          uri="borrar"
+          nameBottom="Borrar"
+          onPress={() => onBorrarPress()}
+        />
+        <Boton uri="ok" nameBottom="Enviar" onPress={onEnviarPress} />
+      </View>
+    </SafeAreaProvider>
+  );
+}

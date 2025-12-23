@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Proyecta",
+    "slug": "Proyecta",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.jpeg",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.jpeg",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.luiggimt.app"
+    },
+    "web": {
+      "favicon": "./assets/icon.jpeg",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7acb1067-a96a-43c1-bd0a-b55880005325"
+      }
+    }
+  }
+}
