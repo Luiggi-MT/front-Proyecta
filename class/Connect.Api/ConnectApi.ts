@@ -5,7 +5,7 @@ export class ConnectApi {
     private static readonly LIMIT: number = 6;
     private static readonly INITIAL_OFFSET: number = 0;
     constructor() {
-        this.apiUrl = "http://3.122.246.141/api";
+        this.apiUrl = "http://localhost/api";
     }
 
     public getLimit(): number {
@@ -112,11 +112,17 @@ export class ConnectApi {
                 method: 'GET',
                 credentials: 'include'
             });
-
-            if (!response.ok) {
+            
+            if (response.status === 401) {
                 return {
                     ok: false,
-                    message: "Session check failed"
+                    message: "No active session"
+                };
+            }
+            if (!response.ok){
+                return {
+                    ok: false, 
+                    message : `Session check failed with status ${response.status}`
                 };
             }
             const data: LoginResponse = await response.json();

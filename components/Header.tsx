@@ -36,7 +36,7 @@ export default function Header({
       <View style={styles.titleHeaderContainer}>
         <Image
           source={{ uri: nameHeader }}
-          style={[{ width: 220, height: 220 }, styles.shadow]}
+          style={[{ width: 180, height: 180 }, styles.shadow]}
         />
       </View>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { styles } from "../styles/styles";
@@ -7,14 +7,9 @@ import { Profesor } from "../class/Interface/Profesor";
 import { View, FlatList, Dimensions } from "react-native";
 import Boton from "../components/Boton";
 import { BotonHomeAdmin } from "../class/Interface/BotonHomeAdmin";
+import { UserContext } from "../class/context/UserContext";
 
-export default function AdminScreen({
-  navigation,
-  route,
-}: {
-  navigation: any;
-  route: any;
-}) {
+export default function AdminScreen({ navigation }: { navigation: any }) {
   const windowWidth = Dimensions.get("window").width;
   const buttonWidth = windowWidth / 2 - 15;
   const opciones: BotonHomeAdmin[] = [
@@ -50,10 +45,10 @@ export default function AdminScreen({
     },
   ];
   const [menuOpciones, setMenuOpciones] = useState<BotonHomeAdmin[]>(opciones);
-  const { profesor }: { profesor: Profesor } = route.params;
+  const profesor = useContext(UserContext).user;
   const api = new ConnectApi();
   const perfil = () => {
-    navigation.navigate("PerfilScreen", { profesor: profesor });
+    navigation.navigate("PerfilScreen");
   };
   return (
     <SafeAreaProvider style={styles.container}>

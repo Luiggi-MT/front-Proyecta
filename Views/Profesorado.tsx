@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ConnectApi } from "../class/Connect.Api/ConnectApi";
 import Header from "../components/Header";
@@ -8,9 +8,11 @@ import InputText from "../components/InputText";
 import Boton from "../components/Boton";
 import { LoginResponse } from "../class/Interface/LoginResponse";
 import { Profesor } from "../class/Interface/Profesor";
+import { UserContext } from "../class/context/UserContext";
 
 export default function Profesorado({ navigation }: { navigation: any }) {
   const [usuario, setUsuario] = useState("");
+  const { user, setUser } = useContext(UserContext);
   const [contraseña, setContraseña] = useState("");
   const [error, setError] = useState("");
   const api = new ConnectApi();
@@ -30,7 +32,6 @@ export default function Profesorado({ navigation }: { navigation: any }) {
   };
   const onEnviarPress = async () => {
     const response: LoginResponse = await api.loginUser(usuario, contraseña);
-    console.log(response);
     if (!response.ok) {
       setError(response.message);
     } else {
@@ -38,8 +39,8 @@ export default function Profesorado({ navigation }: { navigation: any }) {
         foto: response.foto,
         username: response.username,
       };
-      if (response.tipo === "admin")
-        navigation.navigate("AdminScreen", { profesor: profesor });
+      await setUser(profesor);
+      if (response.tipo === "admin") navigation.navigate("AdminScreen");
       if (response.tipo === "profesor") navigation.navigate("ProfesorScreen");
     }
   };

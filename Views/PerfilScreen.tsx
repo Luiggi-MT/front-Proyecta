@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { ConnectApi } from "../class/Connect.Api/ConnectApi";
@@ -6,14 +6,9 @@ import { Profesor } from "../class/Interface/Profesor";
 import { View } from "react-native";
 import { styles } from "../styles/styles";
 import Boton from "../components/Boton";
-export default function PerfilScreen({
-  navigation,
-  route,
-}: {
-  navigation: any;
-  route: any;
-}) {
-  const { profesor }: { profesor: Profesor } = route.params;
+import { UserContext } from "../class/context/UserContext";
+export default function PerfilScreen({ navigation }: { navigation: any }) {
+  const profesor = useContext(UserContext).user;
   const atras = () => {
     navigation.goBack();
   };

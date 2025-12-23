@@ -83,6 +83,28 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
 
+  tarjet: {
+    marginBottom: 3,
+    borderWidth: 1,
+    borderRadius: 5,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  imageTarjet: {
+    padding: 2,
+    width: 80,
+    height: 80,
+  },
+  radius: {
+    borderWidth: 1,
+    borderRadius: 50,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   buttonActive: {},
   buttonDissable: {},
 });

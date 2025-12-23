@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ConnectApi } from "./class/Connect.Api/ConnectApi";
+import { UserContext } from "./class/context/UserContext";
 
 import HomeScreen from "./Views/HomeScreen";
 import Profesorado from "./Views/Profesorado";
@@ -10,6 +11,10 @@ import LoginAlumno from "./Views/LoginAlumno";
 import AdminScreen from "./Views/AdminScreen";
 import ProfesorScreen from "./Views/ProfesorScreen";
 import PerfilScreen from "./Views/PerfilScreen";
+import GestionEstudiantes from "./Views/GestionEstudiantes";
+import DescripcionEstudiante from "./Views/DescripcionEstudiante";
+import { PaperProvider } from "react-native-paper";
+
 
 const Stack = createNativeStackNavigator();
 const api = new ConnectApi();
@@ -18,14 +23,14 @@ function Splash() {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <ActivityIndicator size="large" />
-      <Text>Cargando sesión...</Text>
+      <Text>Cargando sesión</Text>
     </View>
   );
 }
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
-  const [userData, setUserData] = useState({
+  const [user, setUser] = useState({
     foto: null,
     username: null,
   });
@@ -33,12 +38,11 @@ export default function App() {
   const checkSession = async () => {
     try {
       const response = await api.checkSession();
-
       if (!response.ok) {
         setInitialRoute("Home");
-        setUserData({ foto: null, username: null });
+        setUser({ foto: null, username: null });
       } else {
-        setUserData({ foto: response.foto ?? null, username: response.username ?? null });
+        setUser({ foto: response.foto, username: response.username});
 
         if (response.tipo === "admin") setInitialRoute("AdminScreen");
         else if (response.tipo === "profesor") setInitialRoute("ProfesorScreen");
@@ -47,7 +51,7 @@ export default function App() {
     } catch (error) {
       console.error("Error checking session:", error);
       setInitialRoute("LoginAlumno");
-      setUserData({ foto: null, username: null });
+      setUser({ foto: null, username: null });
     }
   };
 
@@ -55,41 +59,35 @@ export default function App() {
     checkSession();
   }, []);
 
-  if (initialRoute === null) {
-    return <Splash />;
-  }
-  const linking = {
-    prefixes: ['http://localhost:8081'], 
-    config: {
-      screens: {
-        Home: {
-          path: '', 
-        }, 
-        Profesorado: {
-          path: 'profesorado',
-        },
-        AdminScreen: {
-          path: 'admin', 
-          parse: {
-            profesor : () => undefined,
-          },
-        }
-      },
-    },
-  };
+
+
+  if (!initialRoute) return <Splash />;
+  
   return (
-    <NavigationContainer linking={linking}>
+    <PaperProvider>
+    <UserContext.Provider value={{user, setUser}}>
+    <NavigationContainer>
       <Stack.Navigator
         initialRouteName={initialRoute}
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Home" component={HomeScreen} initialParams={userData} />
+        <Stack.Screen name="Home" component={HomeScreen}/>
+
         <Stack.Screen name="Profesorado" component={Profesorado} />
         <Stack.Screen name="LoginAlumno" component={LoginAlumno} />
-        <Stack.Screen name="AdminScreen" component={AdminScreen} initialParams={{profesor : userData}} />
-        <Stack.Screen name="ProfesorScreen" component={ProfesorScreen} initialParams={userData} />
+        
+        <Stack.Screen name="AdminScreen" component={AdminScreen} />
+        <Stack.Screen name="ProfesorScreen" component={ProfesorScreen} />
+        
         <Stack.Screen name="PerfilScreen" component={PerfilScreen} />
+
+
+        <Stack.Screen name="GestionEstudiantes" component={GestionEstudiantes} />
+        <Stack.Screen name="DescripcionEstudiante" component={DescripcionEstudiante}/>
+        
       </Stack.Navigator>
     </NavigationContainer>
+    </UserContext.Provider>
+    </PaperProvider>
   );
 }

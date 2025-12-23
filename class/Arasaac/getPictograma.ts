@@ -17,6 +17,7 @@ export class Arasaac {
         ["tareasPorPasos", 36347],
         ["perfil", 36935],
         ["salir", 6606],
+        ["mas", 3220],
     ]);
     private apiUrl: string = `https://api.arasaac.org/v1/pictograms/`;
     
