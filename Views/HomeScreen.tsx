@@ -23,6 +23,7 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
       setLimit(data.count);
     });
   }, []);
+
   const handleBuscadorPress = (searchText: string) => {
     if (searchText.length === 0) {
       setBusqueda(false);
@@ -112,7 +113,6 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
       ) : (
         <View style={[styles.content, styles.shadow]}>
           <FlatList
-            style={styles.studentCard}
             data={students}
             numColumns={3}
             renderItem={({ item }) => (

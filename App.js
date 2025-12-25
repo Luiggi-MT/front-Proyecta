@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Image } from "react-native";
+import { View, Text, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ConnectApi } from "./class/Connect.Api/ConnectApi";
 import { UserContext } from "./class/context/UserContext";
+import { PaperProvider } from "react-native-paper";
 
 import HomeScreen from "./Views/HomeScreen";
 import Profesorado from "./Views/Profesorado";
@@ -13,7 +14,9 @@ import ProfesorScreen from "./Views/ProfesorScreen";
 import PerfilScreen from "./Views/PerfilScreen";
 import GestionEstudiantes from "./Views/GestionEstudiantes";
 import DescripcionEstudiante from "./Views/DescripcionEstudiante";
-import { PaperProvider } from "react-native-paper";
+import CrearEstudiante from "./Views/CrearEstudiante";
+import EstablecerContraseña from "./Views/EstablecerContraseña";
+
 
 
 const Stack = createNativeStackNavigator();
@@ -84,6 +87,8 @@ export default function App() {
 
         <Stack.Screen name="GestionEstudiantes" component={GestionEstudiantes} />
         <Stack.Screen name="DescripcionEstudiante" component={DescripcionEstudiante}/>
+        <Stack.Screen name="CrearEstudiante" component={CrearEstudiante}/>
+        <Stack.Screen name="EstablecerContraseña" component={EstablecerContraseña}/>
         
       </Stack.Navigator>
     </NavigationContainer>

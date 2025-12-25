@@ -79,9 +79,11 @@ export default function GestionEstudiantes({
     }
   };
   const handleDescripcionPress = (student) => {
-    navigation.navigate("DescripcionEstudiante", { student });
+    navigation.replace("DescripcionEstudiante", { student });
   };
-  const handleCreaPress = () => {};
+  const handleCreaPress = () => {
+    navigation.navigate("CrearEstudiante");
+  };
 
   useEffect(() => {
     api.getStudents(0, 3).then((data) => {

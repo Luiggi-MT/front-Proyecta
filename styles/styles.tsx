@@ -71,6 +71,11 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
   },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginRight: 5,
+  },
   studentItem: {
     flex: 1,
     alignItems: "center",

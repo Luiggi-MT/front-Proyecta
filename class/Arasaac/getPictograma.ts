@@ -18,6 +18,8 @@ export class Arasaac {
         ["perfil", 36935],
         ["salir", 6606],
         ["mas", 3220],
+        ["grafica", 9174],
+        ["x", 3046],
     ]);
     private apiUrl: string = `https://api.arasaac.org/v1/pictograms/`;
     

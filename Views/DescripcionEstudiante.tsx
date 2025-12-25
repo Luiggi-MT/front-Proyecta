@@ -8,6 +8,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import Boton from "../components/Boton";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function DescripcionEstudiante({
   navigation,
@@ -17,15 +18,58 @@ export default function DescripcionEstudiante({
   route: any;
 }) {
   const { student } = route.params;
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const [text, setText] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("alfanumerica");
-  const [items, setItems] = useState([
-    { label: "Alfanumerica", value: "alfanumerica" },
+
+  const [messageError, setMessageError] = useState<boolean>(false);
+  const [messageErrorString, setMessageErrorString] = useState<string>("");
+
+  const [view, setView] = useState(0);
+  const [confirmarBorrado, setConfirmarBorrado] = useState<boolean>(false);
+  const [waitting, setWaitting] = useState<boolean>(false);
+  const [messageWaiteng, setMessageWaiteng] = useState<string>("");
+
+  const [openContraseña, setOpenContraseña] = useState(false);
+  const [openAccesibilidad, setOpenAccesibilidad] = useState(false);
+  const [openVisualizacion, setOpenVisualizacion] = useState(false);
+
+  const [contraseñaValue, setContraseñaValue] = useState(
+    student.tipoContraseña
+  );
+  const [accesibilidadValue, setAccesibilidadValue] = useState<string[]>(
+    student.accesibilidad
+  );
+  const [visualizacionValue, setVisualizacionValue] = useState(
+    student.preferenciasVisualizacion
+  );
+
+  const [openAsistenteVoz, setOpenAsistenteVoz] = useState(false);
+  const [asistenteVozValue, setAsistenteVozValue] = useState(
+    student.asistenteVoz
+  );
+  const [asistenteVozItems, setAsistenteVozItems] = useState([
+    { label: "Activado", value: 1 },
+    { label: "Desactivado", value: 0 },
+  ]);
+
+  const [contraseñaItems, setContraseñaItems] = useState([
+    { label: "Alfanumérica", value: "alfanumerica" },
     { label: "Pin", value: "pin" },
-    { label: "Imagenes", value: "imagenes" },
+    { label: "Imágenes", value: "imagenes" },
+  ]);
+  const [accesibilidadItems, setAccesibilidadItems] = useState([
+    { label: "Texto", value: "texto" },
+    { label: "Video", value: "video" },
+    { label: "Imágenes", value: "imagenes" },
+    { label: "Pictogramas", value: "pictogramas" },
+    { label: "Audio", value: "auido" },
+  ]);
+  const [visualizacionItems, setVisualizacionItems] = useState([
+    { label: "Diarias", value: "diarias" },
+    { label: "Semanáles", value: "semanales" },
   ]);
 
   const api = new ConnectApi();
@@ -55,9 +99,72 @@ export default function DescripcionEstudiante({
     setPassword(input);
   };
 
-  useEffect(() => {
-    console.log(student);
-  }, [student]);
+  const handleAccesibilidadPress = () => {
+    setView(1);
+  };
+
+  const handlePerfilPress = () => {
+    setView(0);
+  };
+
+  const handleBorrarPress = async () => {
+    setConfirmarBorrado(true);
+  };
+
+  const handleNoEliminarPress = () => {
+    setConfirmarBorrado(false);
+  };
+
+  const handleConfirmarBorradoPress = async () => {
+    setWaitting(true);
+    setMessageWaiteng(`Eliminando a ${student.username}...`);
+    const response = await api.deleteStudent(student.username);
+    if (!response.ok) {
+      setWaitting(false);
+      setMessageError(true);
+      setMessageErrorString(response.message.Error);
+      console.log(response.message.Error);
+    } else {
+      setTimeout(() => {
+        setWaitting(false);
+        navigation.replace("GestionEstudiantes");
+      }, 2000);
+    }
+  };
+
+  const handleActualizarPress = async () => {
+    setWaitting(true);
+    setMessageWaiteng(`Modificando los datos del estudiante...`);
+    const updateStudent = {
+      id: student.id,
+      username: text || student.username,
+      contraseña: password,
+      foto: selectedImage || student.foto,
+      tipoContraseña: contraseñaValue || student.tipoContraseña,
+
+      accesibilidad: accesibilidadValue || student.accesibilidad,
+      preferenciasVisualizacion:
+        visualizacionValue || student.preferenciasVisualizacion,
+
+      asistenteVoz: asistenteVozValue || student.asistenteVoz,
+    };
+    const response = await api.updateStudent(updateStudent, student.foto);
+    if (!response.ok) {
+      setWaitting(false);
+      setMessageError(true);
+      setMessageErrorString(response.message.Error);
+      console.log(response.message.Error);
+    } else {
+      setTimeout(() => {
+        setWaitting(false);
+        navigation.replace("GestionEstudiantes");
+      }, 2000);
+    }
+  };
+
+  const handleEstablecerContraseñaPress = () => {
+    navigation.navigate("EstablecerContraseña", { student: student });
+  };
   return (
     <SafeAreaProvider>
       <Header
@@ -67,67 +174,178 @@ export default function DescripcionEstudiante({
         nameHeader={api.getComponent("DescripcionDelEstudiante.png")}
         uriPictograma="estudiante"
       />
-      <View style={[styles.content, styles.shadow]}>
-        <TouchableOpacity onPress={seleccionaImagen}>
-          <Text>Modificar foto:</Text>
-          <Image
-            style={[styles.imageTarjet, styles.radius]}
-            source={{ uri: selectedImage || api.getFoto(student.foto) }}
-          />
-        </TouchableOpacity>
-        <Text>Nombre de usuario:</Text>
-        <TextInput
-          style={[styles.buscador, styles.shadow]}
-          onChangeText={handleTextChange}
-          value={text}
-          placeholder={student.username}
-        />
-        <Text>Tipo de contraseña:</Text>
-        <View style={{ zIndex: 1000 }}>
-          <DropDownPicker
-            open={open}
-            value={value}
-            items={items}
-            setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
-            style={[styles.shadow, styles.buscador, { width: "50%" }]}
-          />
-        </View>
-        <Text>Nueva contraseña:</Text>
-        {value === "alfanumerica" ? (
-          <TextInput
-            style={[styles.buscador, styles.shadow]}
-            onChangeText={handlePasswordChange}
-            value={password}
-          />
-        ) : value === "pin" ? (
-          <TextInput
-            style={[styles.buscador, styles.shadow]}
-            onChangeText={handlePasswordChange}
-            value={password}
-            keyboardType="number-pad"
-          />
-        ) : (
-          <Boton
-            uri="olvideContraseña"
-            nameBottom="Establecer Contraseña"
-            onPress={() => {}}
-          />
-        )}
-        <View style={styles.navigationButtons}>
-          <View></View>
-
-          <Boton
-            uri="delante"
-            onPress={() => {
-              navigation.navigate("DescripcionEstudianteAccesibilidad", {
-                student,
-              });
+      {waitting ? (
+        <View style={[styles.content, styles.shadow]}>
+          <ActivityIndicator size="large" color="#FF8C42" />
+          <Text
+            style={{
+              marginTop: 20,
+              fontSize: 18,
+              fontWeight: "bold",
+              color: "#333",
             }}
-          />
+          >
+            Eliminando a {student.username}...
+          </Text>
+          <Text style={{ marginTop: 10, color: "#666" }}>
+            Por favor, espera un momento.
+          </Text>
         </View>
-      </View>
+      ) : view === 0 ? (
+        <View style={[styles.content, styles.shadow]}>
+          <TouchableOpacity onPress={seleccionaImagen}>
+            <Text>Modificar foto:</Text>
+            <Image
+              style={[styles.imageTarjet, styles.radius]}
+              source={{ uri: selectedImage || api.getFoto(student.foto) }}
+            />
+          </TouchableOpacity>
+          <Text>Nombre de usuario:</Text>
+          <TextInput
+            style={[styles.buscador, styles.shadow]}
+            onChangeText={handleTextChange}
+            value={text}
+            placeholder={student.username}
+          />
+          <Text>Tipo de contraseña:</Text>
+          <View style={{ zIndex: 1000 }}>
+            <DropDownPicker
+              open={openContraseña}
+              value={contraseñaValue}
+              items={contraseñaItems}
+              setOpen={setOpenContraseña}
+              setValue={setContraseñaValue}
+              setItems={setContraseñaItems}
+              style={[styles.shadow, styles.buscador, { width: "50%" }]}
+            />
+          </View>
+          <Text>Nueva contraseña:</Text>
+          {contraseñaValue === "alfanumerica" ? (
+            <TextInput
+              style={[styles.buscador, styles.shadow]}
+              onChangeText={handlePasswordChange}
+              value={password}
+            />
+          ) : contraseñaValue === "pin" ? (
+            <TextInput
+              style={[styles.buscador, styles.shadow]}
+              onChangeText={handlePasswordChange}
+              value={password}
+              keyboardType="number-pad"
+            />
+          ) : (
+            <Boton
+              uri="olvideContraseña"
+              nameBottom="Establecer contraseña"
+              onPress={handleEstablecerContraseñaPress}
+            />
+          )}
+          <View style={styles.navigationButtons}>
+            <View></View>
+
+            <Boton uri="delante" onPress={() => handleAccesibilidadPress()} />
+          </View>
+        </View>
+      ) : (
+        <>
+          <View style={[styles.content, styles.shadow]}>
+            <Text>Accesibilidad:</Text>
+            <View style={{ zIndex: 1000 }}>
+              <DropDownPicker
+                multiple={true}
+                min={1}
+                max={3}
+                placeholder="Seleccionar opciones"
+                mode="BADGE"
+                listMode="SCROLLVIEW"
+                open={openAccesibilidad}
+                value={accesibilidadValue}
+                items={accesibilidadItems}
+                setOpen={setOpenAccesibilidad}
+                setValue={setAccesibilidadValue}
+                setItems={setAccesibilidadItems}
+                style={[styles.shadow, styles.buscador, { width: "95%" }]}
+              />
+            </View>
+
+            <Text>Preferencias de visualizacion de tareas:</Text>
+            <View style={{ zIndex: 900 }}>
+              <DropDownPicker
+                open={openVisualizacion}
+                value={visualizacionValue}
+                items={visualizacionItems}
+                setOpen={setOpenVisualizacion}
+                setValue={setVisualizacionValue}
+                setItems={setVisualizacionItems}
+                style={[styles.shadow, styles.buscador, { width: "50%" }]}
+              />
+            </View>
+            <Text>Asistente de voz:</Text>
+            <View style={{ zIndex: 800 }}>
+              <DropDownPicker
+                open={openAsistenteVoz}
+                value={asistenteVozValue}
+                items={asistenteVozItems}
+                setOpen={setOpenAsistenteVoz}
+                setValue={setAsistenteVozValue}
+                setItems={setAsistenteVozItems}
+                style={[styles.shadow, styles.buscador, { width: "50%" }]}
+              />
+            </View>
+
+            <View style={styles.navigationButtons}>
+              <Boton uri="atras" onPress={() => handlePerfilPress()} />
+              {!confirmarBorrado && (
+                <Boton
+                  uri="ok"
+                  nameBottom="Actualizar"
+                  onPress={() => handleActualizarPress()}
+                />
+              )}
+            </View>
+          </View>
+          {!confirmarBorrado ? (
+            <View style={styles.buttons}>
+              <Boton
+                uri="grafica"
+                nameBottom="Seguimiento"
+                onPress={() => {}}
+              />
+              <Boton
+                uri="borrar"
+                nameBottom="Eliminar alumno"
+                onPress={handleBorrarPress}
+              />
+              <Boton
+                uri="tareasPeticion"
+                nameBottom="Asignación de tareas"
+                onPress={() => {}}
+              />
+            </View>
+          ) : (
+            <>
+              <Text style={styles.error}>
+                Confirma para eliminar al estudiante
+              </Text>
+              <View style={styles.navigationButtons}>
+                <Boton
+                  uri="x"
+                  nameBottom="No eliminar"
+                  onPress={handleNoEliminarPress}
+                />
+                <Boton
+                  uri="ok"
+                  nameBottom="Eliminar"
+                  onPress={handleConfirmarBorradoPress}
+                />
+              </View>
+            </>
+          )}
+          {messageError && (
+            <Text style={styles.error}>{messageErrorString}</Text>
+          )}
+        </>
+      )}
     </SafeAreaProvider>
   );
 }

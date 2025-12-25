@@ -1,5 +1,10 @@
 export interface Students {
-    id: number;
+    id?: number;
     username: string;
-    email: string;
+    foto: string;
+    tipoContraseña: string;
+    accesibilidad: string;
+    preferenciasVisualizacion: string;
+    asistenteVoz: boolean;
+    contraseña?: string;
 }

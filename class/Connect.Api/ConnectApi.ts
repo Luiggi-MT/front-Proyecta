@@ -1,4 +1,6 @@
+import { ApiResponse } from "../Interface/ApiResponse";
 import { LoginResponse } from "../Interface/LoginResponse";
+import { Students } from "../Interface/Students";
 
 export class ConnectApi {
     private apiUrl: string;
@@ -49,6 +51,99 @@ export class ConnectApi {
         }catch{
             console.error("Failed to fetch student by name");
             return null;
+        }
+    }
+
+    private async uploadStudentPhoto(username: string, imageUri: string): Promise<ApiResponse>{
+        const formData = new FormData();
+
+        const filename = imageUri.split('/').pop(); 
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        formData.append('photo', {
+            uri: imageUri,
+            name: filename || 'photo.jpg',
+            type: type,
+        } as any);
+        try{
+            const response = await fetch(`${this.apiUrl}/student/${username}/photo`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (!response.ok){
+                const errorData = await response.json(); 
+                return {
+                    ok: false, 
+                    message: errorData
+                }; 
+            }
+            return {ok: true, message: "Foto subida correctamente"};
+        }catch(error){
+            return {ok: false, message: error};
+        }
+    }
+
+    public async createStudent(student: Students): Promise<ApiResponse>{
+        try{
+            const response = await fetch(`${this.apiUrl}/student`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(student)
+            });
+            if (!response.ok){
+                const errorData = await response.json(); 
+                return {
+                    ok: false, 
+                    message: errorData
+                }; 
+            }
+            if (student.foto && student.foto !== "porDefecto.png") this.uploadStudentPhoto(student.username, student.foto);
+            return {ok: true, message: "Estudiante creado correctamente"};
+        }catch(error){
+            return {ok: false, message: error};
+        }
+    }
+    public async updateStudent(student: Students, foto: string): Promise<ApiResponse>{
+        if(foto !== student.foto) this.uploadStudentPhoto(student.username, student.foto);
+        try{
+            const response = await fetch(`${this.apiUrl}/student/${student.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(student)
+            });
+            if (!response.ok){
+                const errorData = await response.json(); 
+                return {
+                    ok: false, 
+                    message: errorData
+                }; 
+            }
+            return {ok: true, message: "Estudiante actualizado correctamente"};
+        }catch(error){
+            return {ok: false, message: error};
+        }
+    }
+
+    public async deleteStudent(name: string): Promise<ApiResponse>{
+        try{
+            const response = await fetch(`${this.apiUrl}/student/${name}`, {
+            method: 'DELETE', 
+            headers: {'Content-Type': 'application/jason'}
+            });
+            if (!response.ok){
+                const errorData = await response.json(); 
+                return {
+                    ok: false, 
+                    message: errorData
+                }; 
+            }
+            return {ok: true, message: "Estudiante eliminado correctamente"};
+        }catch(error){
+            return {ok: false, message: error};
         }
     }
 

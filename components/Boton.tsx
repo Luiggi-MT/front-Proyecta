@@ -11,7 +11,7 @@ export default function Boton({
   arasaacService = true,
 }: {
   uri?: string;
-  nameBottom: string;
+  nameBottom?: string;
   onPress: () => void;
   dissable?: boolean;
   arasaacService?: boolean;
