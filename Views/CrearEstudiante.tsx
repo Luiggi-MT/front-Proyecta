@@ -69,10 +69,11 @@ export default function CrearEstudiante({ navigation }: { navigation: any }) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
+      base64: true,
     });
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-      console.log(result.assets[0].uri);
+      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      setSelectedImage(base64Image);
     }
   };
   const handleTextChange = (input: string) => {

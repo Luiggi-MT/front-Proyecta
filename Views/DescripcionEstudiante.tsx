@@ -9,6 +9,7 @@ import { Alert } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import Boton from "../components/Boton";
 import { ActivityIndicator } from "react-native-paper";
+import { Students } from "../class/Interface/Students";
 
 export default function DescripcionEstudiante({
   navigation,
@@ -134,21 +135,18 @@ export default function DescripcionEstudiante({
 
   const handleActualizarPress = async () => {
     setWaitting(true);
-    setMessageWaiteng(`Modificando los datos del estudiante...`);
-    const updateStudent = {
+    setMessageWaiteng(`Modificando los datos de ${student.username}...`);
+    const updateStudent: Students = {
       id: student.id,
-      username: text || student.username,
+      username: text,
       contraseña: password,
-      foto: selectedImage || student.foto,
-      tipoContraseña: contraseñaValue || student.tipoContraseña,
-
-      accesibilidad: accesibilidadValue || student.accesibilidad,
-      preferenciasVisualizacion:
-        visualizacionValue || student.preferenciasVisualizacion,
-
-      asistenteVoz: asistenteVozValue || student.asistenteVoz,
+      foto: selectedImage,
+      tipoContraseña: contraseñaValue,
+      accesibilidad: accesibilidadValue.toString(),
+      preferenciasVisualizacion: visualizacionValue,
+      asistenteVoz: asistenteVozValue,
     };
-    const response = await api.updateStudent(updateStudent, student.foto);
+    const response = await api.updateStudent(updateStudent);
     if (!response.ok) {
       setWaitting(false);
       setMessageError(true);
@@ -185,7 +183,7 @@ export default function DescripcionEstudiante({
               color: "#333",
             }}
           >
-            Eliminando a {student.username}...
+            {messageWaiteng}
           </Text>
           <Text style={{ marginTop: 10, color: "#666" }}>
             Por favor, espera un momento.

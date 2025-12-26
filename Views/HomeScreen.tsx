@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
       api.getStudents().then((data) => {
         setStudents(data.students || []);
         setOffset(data.offset);
-        setLimit(data.cout);
+        setLimit(data.count);
       });
     } else {
       api.getEstudentByName(searchText).then((data) => {

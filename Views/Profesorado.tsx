@@ -34,15 +34,16 @@ export default function Profesorado({ navigation }: { navigation: any }) {
     const response: LoginResponse = await api.loginUser(usuario, contraseña);
     if (!response.ok) {
       setError(response.message);
-    } else {
-      const profesor: Profesor = {
-        foto: response.foto,
-        username: response.username,
-      };
-      await setUser(profesor);
-      if (response.tipo === "admin") navigation.navigate("AdminScreen");
-      if (response.tipo === "profesor") navigation.navigate("ProfesorScreen");
+      return;
     }
+    const profesor: Profesor = {
+      foto: response.foto,
+      username: response.username,
+      tipo: response.tipo,
+    };
+    await setUser(profesor);
+    if (profesor.tipo === "admin") navigation.navigate("AdminScreen");
+    if (profesor.tipo === "profesor") navigation.navigate("ProfesorScreen");
   };
   return (
     <SafeAreaProvider style={styles.container}>
@@ -68,7 +69,7 @@ export default function Profesorado({ navigation }: { navigation: any }) {
           value={contraseña}
         />
         <View style={{ justifyContent: "center", alignItems: "center" }}>
-          {error && (
+          {!!error && (
             <Text style={styles.error}>Usuario o contraseña incorrecto</Text>
           )}
           <Boton
